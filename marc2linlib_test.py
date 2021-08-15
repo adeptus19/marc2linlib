@@ -25,7 +25,6 @@ def gettipus(inp1, inp) :
     return tipus
 def sanitize(record):
     for row in record :
-        row["value"][0] = row["value"][0].replace("\'","''")
         tipus = gettipus(row["table"],row["column"])
         if tipus == 256:
             row["value"]=1000
@@ -35,10 +34,10 @@ def sanitize(record):
             except:
                 row["value"][0]= 0
         elif tipus > 0 and tipus < 256:
-            print(row["value"][0])
             row["value"][0] = row["value"][0][:tipus]
+            row["value"][0] = row["value"][0].replace("\'","''")
         else:
-            continue
+            row["value"][0] = row["value"][0].replace("\'","''")
     return record
 def setszerzo(record):
     szname = ""
