@@ -41,7 +41,7 @@
       "$a":{
          "table":"konyv",
          "field":"fc",
-		 "type" : 50
+		 "type" : 255
       },
       "$b":{
          "table":"konyv",
