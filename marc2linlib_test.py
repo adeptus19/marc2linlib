@@ -228,6 +228,9 @@ def save_rec(record_full) :
             ssz = get_sorszam("kpld") + ct
             query1 = query1.replace("&@sorszam", str(ssz))
             query1 = query1.replace("&@id", str(konyv_id))
+        s = re.compile("&@[^,.]+,?")
+        x = s.sub("0", query1)
+        query1 = x
         queries.append(insertsql["kpld"]+(query1+");"))    
         ct = ct + 1
     for q in queries :
