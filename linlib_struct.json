@@ -1,0 +1,129 @@
+{
+   "=020":{
+      "$a":{
+         "table":"konyv",
+         "field":"isbn",
+		 "type" : 50
+      },
+      "$j":{
+         "table":"konyv",
+         "field":"kotes",
+		 "type" : 20
+      },
+      "$c":{
+         "table":"konyv",
+         "field":"ar",
+		 "type" : 256
+      }
+   },
+   "=040":{
+      "$a":{
+         "table":"kpld",
+         "field":"lhely",
+		 "type" : 20
+      }
+   },
+   "=041":{
+      "$a":{
+         "table":"konyv",
+         "field":"nyelv",
+		 "type" : 20
+      }
+   },
+   "=080":{
+      "$a":{
+         "table":"konyv",
+         "field":"eto",
+		 "type" : 254
+      }
+   },
+   "=245":{
+      "$a":{
+         "table":"konyv",
+         "field":"fc",
+		 "type" : 50
+      },
+      "$b":{
+         "table":"konyv",
+         "field":"ac",
+		 "type" : 255
+      },
+      "$c":{
+         "table":"konyv",
+         "field":"szerzo",
+		 "type" : 50
+      },
+      "$e":{
+         "table":"konyv",
+         "field":"szerad",
+		 "type" : 255
+      }
+   },
+   "=250":{
+      "$a":{
+         "table":"konyv",
+         "field":"kiadas",
+		 "type" : 200
+      }
+   },
+   "=260":{
+      "$a":{
+         "table":"konyv",
+         "field":"kiadjel",
+		 "type" : 30
+      },
+      "$b":{
+         "table":"konyv",
+         "field":"nyomda",
+		 "type" : 120
+      },
+      "$c":{
+         "table":"konyv",
+         "field":"kiadev",
+		 "type" : 12
+      }
+   },
+   "=300":{
+      "$a":{
+         "table":"konyv",
+         "field":"ter",
+		 "type" : 100
+      },
+      "$b":{
+         "table":"konyv",
+         "field":"tmt",
+		 "type" : 255
+      }
+   },
+   "=653":{
+      "$a":{
+         "table":"konyv",
+         "field":"tszo",
+		 "type" : 255
+      }
+   },
+   "=852":{
+      "$j":{
+         "table":"konyv",
+         "field":"szakj",
+		 "type" : 6
+      },
+      "$x":{
+         "table":"konyv",
+         "field":"raktj",
+		 "type" : 6
+      }
+   },
+   "=920":{
+	"$1":{
+		"table" : "kpld",
+		"field" : "lhely",
+		 "type" : 20
+		},
+	"$6":{
+         "table":"kpld",
+         "field":"lszam",
+		 "type" : 258
+      }
+   }
+}
