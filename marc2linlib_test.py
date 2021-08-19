@@ -6,7 +6,7 @@ filestruct = open("linlib_struct.json")
 linlib_struct = json.load(filestruct)
 filestruct.close()
 try :
-    fhandle = open(file_to_process, "r", encoding = "utf-8")
+    fhandle = open(file_to_process, "r", encoding = "windows-1250")
 except:
     print("Error by opening file")
     quit()
@@ -102,7 +102,7 @@ def get_konyv_id() :
     else :
         x=1
     return x
-def get_sorszam(tablename):
+def get_sorszam(tablename, idname):
     query = "SELECT COUNT(*) FROM " + tablename + ";"
     dbc.execute(query)
     res=dbc.fetchone()
@@ -110,6 +110,17 @@ def get_sorszam(tablename):
         x=int(res[0])+1
     else :
         x=1
+    while True:
+        query2 = "SELECT * FROM " + tablename + " WHERE " + idname + "=" + str(x) +";" 
+        dbc.execute(query2)
+        res2 = dbc.fetchone()
+        if res2 is not None and int(res2[0]) > 0:
+            x = x + 1
+            print(x)
+            print(int(res2[0]))
+            print(query2)
+        else:
+            break
     return x
 def save_rec(record_full) :
     # INSERT INTO konyv (id, fc, ac, szerzo, ar, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj)
@@ -136,12 +147,12 @@ def save_rec(record_full) :
     values = sanitize(values)
     insertsql = dict()
     valuessql = dict()
-    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj) VALUES ("
-    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj,"
+    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus) VALUES ("
+    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', 'Könyv'"
     insertsql["kszerzo"] = "INSERT INTO kszerzo (sorszam, doktipus, id, szerzo ) VALUES ("    
-    valuessql["kszerzo"] = "&@sorszam, &@doktipus, &@id, &@szerzo,"
+    valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
-    valuessql["kcim"] = "&@sorszam, &@doktipus, &@id, &@cim,"
+    valuessql["kcim"] = "&@sorszam,'Könyv', &@id, &@cim,"
     insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam) VALUES ("    
     valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam"
     for item in values :
@@ -153,9 +164,9 @@ def save_rec(record_full) :
         valuessql[item["table"]] = valuessql[item["table"]].replace(repfrom, repto)
     valuessql["konyv"] = valuessql["konyv"].replace("&@id", str(konyv_id))
     valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@id", str(konyv_id))
-    valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@sorszam", str(get_sorszam("kszerzo")))
+    valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@sorszam", str(get_sorszam("kszerzo", "sorszam")))
     valuessql["kcim"] = valuessql["kcim"].replace("&@id", str(konyv_id))
-    valuessql["kcim"] = valuessql["kcim"].replace("&@sorszam", str(get_sorszam("kcim")))
+    valuessql["kcim"] = valuessql["kcim"].replace("&@sorszam", str(get_sorszam("kcim", "sorszam")))
     
     for key in valuessql :
         s = re.compile("&@[^,.]+,?")
@@ -224,7 +235,7 @@ def save_rec(record_full) :
             except:
                 repto = str(j["value"])
             query1 = query1.replace(repfrom,repto)
-            ssz = get_sorszam("kpld") + ct
+            ssz = get_sorszam("kpld", "sorszam") + ct
             query1 = query1.replace("&@sorszam", str(ssz))
             query1 = query1.replace("&@id", str(konyv_id))
         s = re.compile("&@[^,.]+,?")
@@ -239,7 +250,7 @@ def save_rec(record_full) :
     print(index)
     return
 try :
-    dbconn = psycopg2.connect("dbname=linlib3test user=linlib password=linlib")
+    dbconn = psycopg2.connect("dbname=linlib3copy user=linlib password=linlib")
 except :
     print("Cannot establish database connection")
     quit()
