@@ -153,8 +153,8 @@ def save_rec(record_full) :
     valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
     valuessql["kcim"] = "&@sorszam,'Könyv', &@id, &@cim,"
-    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam) VALUES ("    
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam"
+    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum) VALUES ("    
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
     for item in values :
         repfrom = "&@" + item["column"]
         try:
@@ -181,7 +181,7 @@ def save_rec(record_full) :
     book_columns = list()
     book_value = list()
     book_values = list()
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam"
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
     i = 0
     count = 0
     for book in record_full["exempl"] :
@@ -266,6 +266,8 @@ for line in fhandle :
         act_record = []
         to_save = rec_sorted(last_record)
         save_rec(to_save)
+        if read_records > 10:
+            break;
 print(read_records)
 #print(last_record)
 #print(to_save)
