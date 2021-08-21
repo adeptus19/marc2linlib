@@ -1,6 +1,13 @@
 import psycopg2
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+dbname = config["DATABASE"]["dbname"]
+dbuser = config["DATABASE"]["dbuser"]
+dbpassword = config["DATABASE"]["dbpassword"]
+conn_s = "dbname=" + dbname + " user=" + dbuser +"  password=" +dbpassword
 try :
-    dbconn = psycopg2.connect("dbname=linlib3copy user=linlib password=linlib")
+    dbconn = psycopg2.connect(conn_s)
 except :
     print("Cannot establish database connection")
     quit()

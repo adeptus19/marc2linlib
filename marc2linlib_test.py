@@ -155,8 +155,8 @@ def save_rec(record_full) :
     values = sanitize(values)
     insertsql = dict()
     valuessql = dict()
-    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus) VALUES ("
-    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', 'Könyv'"
+    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem) VALUES ("
+    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', 'Könyv', &@ar, 'Ft'"
     insertsql["kszerzo"] = "INSERT INTO kszerzo (sorszam, doktipus, id, szerzo ) VALUES ("    
     valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
@@ -175,7 +175,7 @@ def save_rec(record_full) :
     valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@sorszam", str(get_sorszam("kszerzo", "sorszam")))
     valuessql["kcim"] = valuessql["kcim"].replace("&@id", str(konyv_id))
     valuessql["kcim"] = valuessql["kcim"].replace("&@sorszam", str(get_sorszam("kcim", "sorszam")))
-    
+    valuessql["konyv"] = valuessql["konyv"].replace("&@ar","0")
     for key in valuessql :
         s = re.compile("&@[^,.]+,?")
         x = s.sub("' ',", valuessql[key])
