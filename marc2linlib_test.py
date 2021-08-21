@@ -27,7 +27,15 @@ def sanitize(record):
     for row in record :
         tipus = gettipus(row["table"],row["column"])
         if tipus == 256:
-            row["value"]=1000
+            num = ""
+            nr = 0
+            for i in range(len(row["value"][0])) :
+                try :
+                    num = num + row["value"][0][i]
+                    nr = int(num)
+                except:
+                    break
+            row["value"]=float(nr)
         elif tipus == 258:
             try:
                 row["value"][0]=int(row["value"][0][2:])
@@ -54,7 +62,6 @@ def setkcim(record):
     for v in record :
         if v["column"] == "fc":
             szname = v["value"][0][:40]
-            print(szname)
     record.append({"table" : "kcim", "column":"cim" , "value" :[szname]})
     return record
 def setkszerzo(record):
@@ -116,15 +123,30 @@ def get_sorszam(tablename, idname):
         res2 = dbc.fetchone()
         if res2 is not None and int(res2[0]) > 0:
             x = x + 1
-            print(x)
-            print(int(res2[0]))
-            print(query2)
         else:
             break
     return x
+#def get_lkonyv_query(record):
+#    values =[]
+#    record_s = record["book"]
+#    print(record)
+#    for row in record_s :
+#            for field in record_s[row]:
+#                target_value=[]
+#                try:
+#                   target_table = linlib_struct[row][field]["table2"]
+#                    target_column = linlib_struct[row][field]["field2"]
+#                except:
+#
+#                    continue
+#               target_value.append(record_s[row][field])
+#                values.append({"table": target_table, "column":target_column,"value":target_value})    
+#    record_pld = record["book"]
+#    print(values)
 def save_rec(record_full) :
     # INSERT INTO konyv (id, fc, ac, szerzo, ar, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj)
     # VALUES (AI, record_s["=245"]["$a"]), record_s["=245"]["$b"], record_s["=245"]["$c"] ...
+    # INSERT INTO lkonyv (id, doktipus, lszam, szerzo, cim, raktj, ar, pnem, lhely, statusz)
     record_s = record_full["book"]
     values = list()
     value = dict()
@@ -153,8 +175,8 @@ def save_rec(record_full) :
     valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
     valuessql["kcim"] = "&@sorszam,'Könyv', &@id, &@cim,"
-    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum) VALUES ("    
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
+    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, vonalkod) VALUES ("    
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod'"
     for item in values :
         repfrom = "&@" + item["column"]
         try:
@@ -177,34 +199,35 @@ def save_rec(record_full) :
     queries.append(insertsql["kszerzo"] + valuessql["kszerzo"])
     queries.append(insertsql["kcim"] + valuessql["kcim"])
     exemplars = list()
-    book_column = list()
-    book_columns = list()
-    book_value = list()
-    book_values = list()
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod"
     i = 0
     count = 0
     for book in record_full["exempl"] :
+            count = count + 1
+    for j in range(count):
+            book_column = list()
+            book_columns = list()
+            book_value = list()
+            book_values = list()
             query1 = valuessql["kpld"]
             index = list()
+            tempcs = list()
+            tempvs = list()
             pos = 0
-            for dollar in book[0] :
+            for dollar in record_full["exempl"][j][0] :
                 try:
                     book_column.append(linlib_struct["=920"][dollar]["field"])
                     index.append(pos)
-                    pos = pos +1
+                    pos = pos +1    
                 except:
                     pos = pos +1
                     continue
-            count = count + 1
-    for j in range(count):
-        tempcs = list()
-        tempvs = list()
-        for i in range(len(index)):
-            tempcs.append(book_column[i])
-            tempvs.append([record_full["exempl"][j][1][index[i]]])
-        book_columns.append(tempcs)
-        book_values.append(tempvs)
+            for i in range(len(index)):
+                tempcs.append(book_column[i])
+                tempvs.append([record_full["exempl"][j][1][index[i]]])
+            book_columns.append(tempcs)
+            book_values.append(tempvs)
+    print(book_columns, '\n', book_values)
     pldvals = list()
     pldvalue = dict()
     ct1 = 0
@@ -216,7 +239,6 @@ def save_rec(record_full) :
             pldvalue["field"] = pld
             pldvalue["value"] = book_values[ct1][ct2][0]
             if pld == "lszam":
-                print(book_values[ct1][ct2])
                 try:
                     pldvalue["value"] = str(int((book_values[ct1][ct2][0][2:])))
                 except:
@@ -243,6 +265,7 @@ def save_rec(record_full) :
         query1 = x
         queries.append(insertsql["kpld"]+(query1+");"))    
         ct = ct + 1
+    #query3 = get_lkonyv_query(record_full)
     for q in queries :
         print(q)
         dbc.execute(q)
@@ -266,7 +289,7 @@ for line in fhandle :
         act_record = []
         to_save = rec_sorted(last_record)
         save_rec(to_save)
-        if read_records > 10:
+        if read_records > 100:
             break;
 print(read_records)
 #print(last_record)
