@@ -124,6 +124,28 @@
          "table":"kpld",
          "field":"lszam",
 		 "type" : 258
-      }
-   }
+      },
+	"$4":{
+		"table" : "konyv",
+		"field" : "megj",
+		"type" : 255
+	},
+	"$8":{
+		"table":"kpld",
+		"field" : "rdatum",
+		"type" : 8
+	},
+	"$F":
+		{
+			"table": "kpld",
+			"field" : "statusz",
+			"type" : 260
+		},
+	"$v":
+		{
+			"table": "kpld",
+			"field" : "vonalkod",
+			"type" : 255
+		}
+}
 }
