@@ -303,8 +303,6 @@ for line in fhandle :
         act_record = []
         to_save = rec_sorted(last_record)
         save_rec(to_save)
-        if read_records > 100:
-            break;
 print(read_records)
 #print(last_record)
 #print(to_save)
