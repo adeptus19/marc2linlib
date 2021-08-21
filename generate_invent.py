@@ -16,7 +16,7 @@ querycount = "SELECT count(*) from konyv"
 dbc.execute(querycount)
 konyvdbs = dbc.fetchone()
 konyvdb = int(konyvdbs[0])
-for konyv_id in range(1, konyvdb):
+for konyv_id in range(1, konyvdb+1):
     select1 = "SELECT doktipus, szerzo, fc, szakj, raktj, ar, pnem FROM konyv WHERE id = " + str(konyv_id) + ";"
     dbc.execute(select1)
     res1 = dbc.fetchone()
