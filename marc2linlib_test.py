@@ -175,7 +175,7 @@ def save_rec(record_full) :
     valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
     valuessql["kcim"] = "&@sorszam,'Könyv', &@id, &@cim,"
-    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, vonalkod) VALUES ("    
+    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, vonalkod, statusz) VALUES ("    
     valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod'"
     for item in values :
         repfrom = "&@" + item["column"]
@@ -199,16 +199,16 @@ def save_rec(record_full) :
     queries.append(insertsql["kszerzo"] + valuessql["kszerzo"])
     queries.append(insertsql["kcim"] + valuessql["kcim"])
     exemplars = list()
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod"
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod, &@statusz"
     i = 0
     count = 0
+    book_column = list()
+    book_columns = list()
+    book_value = list()
+    book_values = list()
     for book in record_full["exempl"] :
             count = count + 1
     for j in range(count):
-            book_column = list()
-            book_columns = list()
-            book_value = list()
-            book_values = list()
             query1 = valuessql["kpld"]
             index = list()
             tempcs = list()
@@ -227,13 +227,13 @@ def save_rec(record_full) :
                 tempvs.append([record_full["exempl"][j][1][index[i]]])
             book_columns.append(tempcs)
             book_values.append(tempvs)
-    print(book_columns, '\n', book_values)
+  #  print(book_columns, '\n', book_values)
     pldvals = list()
     pldvalue = dict()
     ct1 = 0
+    pldvalues = list()
     for plds in book_columns:
         ct2 = 0
-        pldvalues = list()
         for pld in plds :
             pldvalue["table"] = "kpld"
             pldvalue["field"] = pld
@@ -243,10 +243,17 @@ def save_rec(record_full) :
                     pldvalue["value"] = str(int((book_values[ct1][ct2][0][2:])))
                 except:
                     pldvalue["value"] = "0"
+            if pld == "statusz":
+                    if pldvalue["value"] not in ("4 hét", "3 hét", "Selejtezve", "Tanév végéig" ):
+                        if pldvalue["value"] == "nem kölcs." :
+                           pldvalue["value"] = "Nem kölcsönözhető"
+                        else:
+                            pldvalue["value"] = "Selejtezve"
             ct2 = ct2 + 1
             pldvalues.append({"table":pldvalue["table"],"column" : pldvalue["field"],"value" : pldvalue["value"]})
-        pldvals.append(pldvalues)
         ct1 = ct1 + 1
+        pldvals.append(pldvalues)
+#    print(pldvals)
     ct=0
     for i in pldvals:
         query1 = valuessql["kpld"]
@@ -267,10 +274,10 @@ def save_rec(record_full) :
         ct = ct + 1
     #query3 = get_lkonyv_query(record_full)
     for q in queries :
-        print(q)
+  #      print(q)
         dbc.execute(q)
     dbconn.commit()
-    print(index)
+  #  print(index)
     return
 try :
     dbconn = psycopg2.connect("dbname=linlib3copy user=linlib password=linlib")
