@@ -188,13 +188,13 @@ def save_rec(record_full) :
     valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod, &@statusz"
     i = 0
     count = 0
-    book_column = list()
     book_columns = list()
-    book_value = list()
     book_values = list()
     for book in record_full["exempl"] :
             count = count + 1
     for j in range(count):
+            book_column = list()
+            book_value = list()
             query1 = valuessql["kpld"]
             index = list()
             tempcs = list()
@@ -213,12 +213,12 @@ def save_rec(record_full) :
                 tempvs.append([record_full["exempl"][j][1][index[i]]])
             book_columns.append(tempcs)
             book_values.append(tempvs)
-  #  print(book_columns, '\n', book_values)
+  # print(book_columns)
     pldvals = list()
     pldvalue = dict()
     ct1 = 0
-    pldvalues = list()
     for plds in book_columns:
+        pldvalues = list()
         ct2 = 0
         for pld in plds :
             pldvalue["table"] = "kpld"
@@ -235,11 +235,11 @@ def save_rec(record_full) :
                            pldvalue["value"] = "Nem kölcsönözhető"
                         else:
                             pldvalue["value"] = "Selejtezve"
+            pldvalues.append({"table":pldvalue["table"],"column" : book_columns[ct1][ct2],"value" : pldvalue["value"]})
             ct2 = ct2 + 1
-            pldvalues.append({"table":pldvalue["table"],"column" : pldvalue["field"],"value" : pldvalue["value"]})
         ct1 = ct1 + 1
         pldvals.append(pldvalues)
-#    print(pldvals)
+  # print(pldvals)
     ct=0
     for i in pldvals:
         query1 = valuessql["kpld"]
