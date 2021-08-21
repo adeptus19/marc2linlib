@@ -216,6 +216,7 @@ def save_rec(record_full) :
   # print(book_columns)
     pldvals = list()
     pldvalue = dict()
+    vonalkod = True
     ct1 = 0
     for plds in book_columns:
         pldvalues = list()
@@ -235,6 +236,8 @@ def save_rec(record_full) :
                            pldvalue["value"] = "Nem kölcsönözhető"
                         else:
                             pldvalue["value"] = "Selejtezve"
+                    if pldvalue["value"] == "leltározatlan":
+                        vonalkod = False
             pldvalues.append({"table":pldvalue["table"],"column" : book_columns[ct1][ct2],"value" : pldvalue["value"]})
             ct2 = ct2 + 1
         ct1 = ct1 + 1
@@ -248,13 +251,16 @@ def save_rec(record_full) :
             try:
                 repto = "\'" + j["value"] + "\'"
             except:
-                repto = str(j["value"])
+                if j["column"] == "vonalkod" and (not vonalkod) :
+                    repto = "00000000"
+                else:
+                    repto = str(j["value"]) + "'"
             query1 = query1.replace(repfrom,repto)
             ssz = get_sorszam("kpld", "sorszam") + ct
             query1 = query1.replace("&@sorszam", str(ssz))
             query1 = query1.replace("&@id", str(konyv_id))
         s = re.compile("&@[^,.]+,?")
-        x = s.sub("0", query1)
+        x = s.sub("'0', ", query1)
         query1 = x
         queries.append(insertsql["kpld"]+(query1+");"))    
         ct = ct + 1
