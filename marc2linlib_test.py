@@ -1,21 +1,7 @@
 import psycopg2
 import re
 import json
-file_to_process = input("MARC-21 file to process: ")
-filestruct = open("linlib_struct.json")
-linlib_struct = json.load(filestruct)
-filestruct.close()
-try :
-    fhandle = open(file_to_process, "r", encoding = "windows-1250")
-except:
-    print("Error by opening file")
-    quit()
-read_lines = 0
-read_records = 0
-act_record = list()
-last_record = list()
-rec_len = 0
-konyv_id = 0
+import configparser
 def gettipus(inp1, inp) :
     tipus = 0
     for row in linlib_struct :
@@ -274,13 +260,34 @@ def save_rec(record_full) :
         ct = ct + 1
     #query3 = get_lkonyv_query(record_full)
     for q in queries :
-  #      print(q)
+        print(q)
         dbc.execute(q)
     dbconn.commit()
   #  print(index)
     return
+file_to_process = input("MARC-21 file to process: ")
+filestruct = open("linlib_struct.json")
+linlib_struct = json.load(filestruct)
+filestruct.close()
 try :
-    dbconn = psycopg2.connect("dbname=linlib3copy user=linlib password=linlib")
+    fhandle = open(file_to_process, "r", encoding = "windows-1250")
+except:
+    print("Error by opening file")
+    quit()
+read_lines = 0
+read_records = 0
+act_record = list()
+last_record = list()
+rec_len = 0
+konyv_id = 0
+config = configparser.ConfigParser()
+config.read('config.ini')
+dbname = config["DATABASE"]["dbname"]
+dbuser = config["DATABASE"]["dbuser"]
+dbpassword = config["DATABASE"]["dbpassword"]
+conn_s = "dbname=" + dbname + " user=" + dbuser +"  password=" +dbpassword
+try :
+    dbconn = psycopg2.connect(conn_s)
 except :
     print("Cannot establish database connection")
     quit()
