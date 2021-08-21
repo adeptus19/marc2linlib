@@ -41,6 +41,7 @@ for konyv_id in range(1, konyvdb):
             ins_val_secpart = ins_val_secpart + str(res2[pldcount][i]) + ", "
         ins_val_secpart = ins_val_secpart.rstrip(", ")
         ins_full = "INSERT INTO lkonyv (doktipus, szerzo, cim, szakj, raktj, ar, pnem, lszam, statusz) VALUES ("+ ins_val + ins_val_secpart + ", 1);"
+        print(ins_full)
         dbc.execute(ins_full)
 dbconn.commit()
 dbconn.close()
