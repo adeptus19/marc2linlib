@@ -37,6 +37,18 @@
 		 "type" : 254
       }
    },
+   "=100":{
+      "$a":{
+         "table":"kszerzo",
+         "field":"csaladnev",
+		 "type" : 255
+      },
+	  "$j":{
+         "table":"kszerzo",
+         "field":"keresztnev",
+		 "type" : 255
+      }
+   },
    "=245":{
       "$a":{
          "table":"konyv",
@@ -115,7 +127,7 @@
       }
    },
    "=920":{
-	"$1":{
+	"$B":{
 		"table" : "kpld",
 		"field" : "lhely",
 		 "type" : 20
