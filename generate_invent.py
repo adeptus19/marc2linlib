@@ -24,8 +24,8 @@ for konyv_id in range(1, konyvdb+1):
     dbc.execute(select2)
     res2=dbc.fetchall()
     ins_val = ""
+    # INSERT INTO lkonyv (doktipus, szerzo, cim, szakj, raktj, ar, pnem, lszam, statusz, megan)
     #sample insert:
-    # INSERT INTO lkonyv (doktipus, szerzo, cim, szakj, raktj, ar, pnem, lszam, statusz)
     #   VALUES ('Könyv', 'Jókai', 'Arany ember', 'J23', '7555', 2000.0,, 'Ft', '3627627', 1);
     for i in range(len(res1)):
         if i == 5 : 
