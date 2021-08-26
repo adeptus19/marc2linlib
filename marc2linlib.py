@@ -8,6 +8,15 @@ nyelv = [
     ("eng" , "angol"),
     ("ger" , "német"),
  ]
+dokt = [
+    ("BOOK", "Könyv"),
+    ("CD", "Hangzó"),
+    ("DVD", "AV"),
+    ("VIDEO", "AV"),
+    ("AUDIO", "Hangzó"),
+    ("CDR", "Multimédia"),
+    ("MANU", "Szakdolgozat")
+]
 def gettipus(inp1, inp) :
     tipus = 0
     for row in linlib_struct :
@@ -88,8 +97,20 @@ def setlang(record):
                         v["value"][0] = ny[1]
                         found = True
                 if not found :
-                    v["value"] = "egyéb"
+                    v["value"][0] = "egyéb"
     return record
+def setdoktipus(record):
+    value = ""
+    found = False
+    r = record["exempl"]
+    index = r[0][0].index("$m")
+    for dt in dokt:
+            if r[0][1][index] == dt[0]:
+                value = dt[1]
+                found = True
+    if not found:
+        value = "egyéb"
+    return value
 def rec_sorted(record) :
     temprec = dict()
     tszodata=list()
@@ -189,16 +210,20 @@ def save_rec(record_full) :
     values = setkszerzo(values)
     values = setkcim(values)
     values = setlang(values)
+    doktype = setdoktipus(record_full)
     values = sanitize(values)
+    values.append({"table": "konyv", "column":"doktipus","value":[doktype]})
+    values.append({"table": "kcim", "column":"doktipus","value":[doktype]})
+    values.append({"table": "kszerzo", "column":"doktipus","value":[doktype]})
     values.append({"table": "konyv", "column":"tszo","value":[targyszo]})
     insertsql = dict()
     valuessql = dict()
     insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem) VALUES ("
-    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', 'Könyv', &@ar, 'Ft'"
+    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', &@doktipus, &@ar, 'Ft'"
     insertsql["kszerzo"] = "INSERT INTO kszerzo (sorszam, doktipus, id, szerzo ) VALUES ("    
-    valuessql["kszerzo"] = "&@sorszam, 'Könyv', &@id, &@szerzo,"
+    valuessql["kszerzo"] = "&@sorszam, &@doktipus, &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
-    valuessql["kcim"] = "&@sorszam,'Könyv', &@id, &@cim,"
+    valuessql["kcim"] = "&@sorszam, &@doktipus, &@id, &@cim,"
     insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, vonalkod, statusz, tulaj) VALUES ("    
     valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod'"
     for item in values :
@@ -278,6 +303,8 @@ def save_rec(record_full) :
                         pldvalue["value"] = "k"
                     if pldvalue["value"] == "leltározatlan":
                         vonalkod = False
+            if pld == "lhely":
+                pldvalue["value"] = book_values[ct1][ct2][0][:20]
             pldvalues.append({"table":pldvalue["table"],"column" : book_columns[ct1][ct2],"value" : pldvalue["value"]})
             ct2 = ct2 + 1
         ct1 = ct1 + 1

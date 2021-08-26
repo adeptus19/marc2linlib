@@ -158,6 +158,11 @@
 			"table": "kpld",
 			"field" : "vonalkod",
 			"type" : 255
-		}
+		},
+	"$m": {
+			"table": "konyv",
+			"field" : "doktipus",
+			"type": 15
+			}
 }
 }
