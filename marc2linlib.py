@@ -7,6 +7,8 @@ nyelv = [
     ("cro" , "horvát"),
     ("eng" , "angol"),
     ("ger" , "német"),
+    ("fre", "francia"),
+    ("rus", "orosz")
  ]
 dokt = [
     ("BOOK", "Könyv"),
@@ -76,7 +78,7 @@ def setkszerzo(record):
     for v2 in record:
         if v2["table"] == "konyv" and v2["column"] == "szerzo":
             v2["value"] = [szname]
-    record.append({"table" : "kszerzo", "column":"szerzo" , "value" :[szname]})
+    record.append({"table" : "kszerzo", "column":"szerzo" , "value" :[szname[:35]]})
     return record
 def settszo(record):
     tszo = ""
