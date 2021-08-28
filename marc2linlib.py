@@ -220,8 +220,8 @@ def save_rec(record_full) :
     values.append({"table": "konyv", "column":"tszo","value":[targyszo]})
     insertsql = dict()
     valuessql = dict()
-    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem) VALUES ("
-    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', &@doktipus, &@ar, 'Ft'"
+    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, kiadev, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem) VALUES ("
+    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@kiadev, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', &@doktipus, &@ar, 'Ft'"
     insertsql["kszerzo"] = "INSERT INTO kszerzo (sorszam, doktipus, id, szerzo ) VALUES ("    
     valuessql["kszerzo"] = "&@sorszam, &@doktipus, &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
