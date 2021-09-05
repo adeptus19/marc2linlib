@@ -115,12 +115,12 @@
       }
    },
    "=852":{
-      "$j":{
+      "$h":{
          "table":"konyv",
          "field":"szakj",
 		 "type" : 6
       },
-      "$x":{
+	  "$j":{
          "table":"konyv",
          "field":"raktj",
 		 "type" : 6

@@ -17,7 +17,8 @@ dokt = [
     ("VIDEO", "AV"),
     ("AUDIO", "Hangzó"),
     ("CDR", "Multimédia"),
-    ("MANU", "Szakdolgozat")
+    ("MANUS", "Szakdolgozat"),
+    ("ISSBD", "Folyóirat")
 ]
 def gettipus(inp1, inp) :
     tipus = 0
@@ -39,6 +40,11 @@ def sanitize(record):
                 except:
                     break
             row["value"]=float(nr)
+        elif tipus == 6:
+            if row["column"] == "szakj":
+                row["value"][0] = row["value"][0].replace(" ","")          
+            row["value"][0] = row["value"][0][:tipus]
+            row["value"][0] = row["value"][0].replace("\'","''")
         elif tipus == 258:
             try:
                 row["value"][0]=int(row["value"][0][2:])
@@ -87,6 +93,7 @@ def settszo(record):
     tszo = tszo.rstrip("- ")
     if tszo == "" :
         tszo =" "
+    tszo = tszo.replace("\'","''")
     tszo = tszo[:255]
     return tszo
 def setlang(record):
@@ -226,8 +233,8 @@ def save_rec(record_full) :
     valuessql["kszerzo"] = "&@sorszam, &@doktipus, &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
     valuessql["kcim"] = "&@sorszam, &@doktipus, &@id, &@cim,"
-    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, vonalkod, statusz, tulaj) VALUES ("    
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod'"
+    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, statusz, tulaj) VALUES ("    
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
     for item in values :
         repfrom = "&@" + item["column"]
         try:
@@ -250,7 +257,7 @@ def save_rec(record_full) :
     queries.append(insertsql["kszerzo"] + valuessql["kszerzo"])
     queries.append(insertsql["kcim"] + valuessql["kcim"])
     exemplars = list()
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@vonalkod, &@statusz, 'EJF'"
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@statusz, 'EJF'"
     i = 0
     count = 0
     book_columns = list()
