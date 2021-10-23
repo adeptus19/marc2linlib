@@ -26,7 +26,7 @@ read_lines = 0
 query1 ="SELECT COUNT(*) FROM selejtj;"
 dbc.execute(query1)
 res = dbc.fetchone()
-index = int(res[0])+1
+index = 1
 sqlcommand = "INSERT INTO selejtj (sorszam, jegyzek, ar, lszam, szerzo, cim, szakj, raktj, pnem, lbetu, lhely, kotszam, db, torles, doktipus, kpld) VALUES ("
 for id in fhandle:
     id = id.rstrip()
@@ -50,6 +50,8 @@ for id in fhandle:
                     unescaped = unescaped[:30]
                 if (i==5):
                     unescaped = unescaped[:40]
+                if (i==10):
+                    unescaped = unescaped[:15]
                 values = values + "'" + unescaped + "', "
             else:
                 values = values + "' ', "
