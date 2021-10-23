@@ -12,20 +12,21 @@ except :
     print("Cannot establish database connection")
     quit()
 dbc = dbconn.cursor()
-file_to_process = "./selejt/selejt1.txt"
-s1 = "2021/01"
+whichfile = input("Selejtjegyzék sorszáma: ")
+file_to_process = "./selejt/selejt" + whichfile + ".txt"
+s1 = input("Selejtjegyzék azonosítója: ")
 sqlfile = "./selejt/trashgen" + s1.replace("/", "_") + ".sql"
 try :
-    fhandle = open(file_to_process, "r", encoding = "latin2")
+    fhandle = open(file_to_process, "r")
 except:
     print("Error by opening file")
     quit()
-sqlhandle = open(sqlfile, "w")
+sqlhandle = open(sqlfile, "w", encoding="latin2")
 read_lines = 0
 query1 ="SELECT COUNT(*) FROM selejtj;"
 dbc.execute(query1)
 res = dbc.fetchone()
-index = int(res[0])
+index = int(res[0])+1
 sqlcommand = "INSERT INTO selejtj (sorszam, jegyzek, ar, lszam, szerzo, cim, szakj, raktj, pnem, lbetu, lhely, kotszam, db, torles, doktipus, kpld) VALUES ("
 for id in fhandle:
     id = id.rstrip()
@@ -45,6 +46,10 @@ for id in fhandle:
         for i in range(4,len(res) - 1 ):
             if (res[i] != ""):
                 unescaped = res[i].replace("'", "\''")
+                if (i==4):
+                    unescaped = unescaped[:30]
+                if (i==5):
+                    unescaped = unescaped[:40]
                 values = values + "'" + unescaped + "', "
             else:
                 values = values + "' ', "
@@ -53,9 +58,9 @@ for id in fhandle:
         else:
             values = values + "' ', "
         values = values + "1, " + "'Elavulás', " + "'Könyv', " + str(res[0]) +");"
-        list = sqlcommand + values 
+        list = sqlcommand + values + "\n"
         print(list)
-        sqlhandle.write(list + "\n")
+        sqlhandle.write(list)
         index = index + 1
 fhandle.close
 sqlhandle.close()
