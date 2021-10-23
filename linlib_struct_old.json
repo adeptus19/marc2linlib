@@ -100,6 +100,11 @@
          "table":"konyv",
          "field":"ter",
 		 "type" : 100
+      },
+      "$b":{
+         "table":"konyv",
+         "field":"tmt",
+		 "type" : 255
       }
    },
    "=653":{
@@ -110,20 +115,16 @@
       }
    },
    "=852":{
-      "$h":{
+      "$j":{
          "table":"konyv",
          "field":"szakj",
 		 "type" : 6
       },
-	  "$j":{
+      "$x":{
          "table":"konyv",
          "field":"raktj",
 		 "type" : 6
       }
-   },
-   "=960":{
-	   "$a":"kvezname",
-	   "$j": "keresztnev"
    },
    "=920":{
 	"$B":{
@@ -140,11 +141,6 @@
 		"table" : "konyv",
 		"field" : "megj",
 		"type" : 255
-	},
-	"$5":{
-		"table":"kpld",
-		"field" : "vonalkod",
-		"type" : 15
 	},
 	"$8":{
 		"table":"kpld",

@@ -1,0 +1,1 @@
+nextval('kpld_sorszam_seq'::regclass)

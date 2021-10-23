@@ -17,18 +17,15 @@ dokt = [
     ("VIDEO", "AV"),
     ("AUDIO", "Hangzó"),
     ("CDR", "Multimédia"),
-    ("MANUS", "Könyv"),
+    ("MANUS", "Szakdolgozat"),
     ("ISSBD", "Folyóirat")
 ]
 def gettipus(inp1, inp) :
     tipus = 0
     for row in linlib_struct :
        for field in linlib_struct[row] :
-            try:
                 if linlib_struct[row][field]["field"] == inp and linlib_struct[row][field]["table"]  == inp1 :
                     tipus = linlib_struct[row][field]["type"]
-            except:
-                pass
     return tipus
 def sanitize(record):
     for row in record :
@@ -69,11 +66,6 @@ def setszerzo(record):
             break
     record.append({"table" : "konyv", "column":"szerad" , "value" :[szname]})
     return record
-def setkonzulens(record):
-    knames = list()
-    for km in record["kozrem"]:
-        knames.append(km[1][0] + " " + km[1][1])
-    return knames
 def setkcim(record):
     szname = ""
     for v in record :
@@ -128,10 +120,14 @@ def setdoktipus(record):
     if not found:
         value = "egyéb"
     return value
+def setlszam(record):
+    leltari_temp = record["book"]["=852"]["$h"]
+    szam = leltari_temp[leltari_temp.find("/")+1:]
+    print(szam)
+    return record
 def rec_sorted(record) :
     temprec = dict()
     tszodata=list()
-    kozrem = list()
     result = dict()
     pldcount = 0
     plddata = list()
@@ -145,8 +141,6 @@ def rec_sorted(record) :
                 plddata.append([key, value])
             elif row_1 == "=653":
                 tszodata.append(value[0])
-            elif row_1 == "=960":
-                kozrem.append([key, value])
             else :
                 temprec[row_1]= dict()
                 prevkey=""
@@ -160,7 +154,6 @@ def rec_sorted(record) :
     result["book"] = temprec
     result["exempl"] = plddata
     result["tszo"] = tszodata
-    result["kozrem"] = kozrem
     return result
 def get_konyv_id() :
     query = "SELECT COUNT(*) FROM konyv;"
@@ -188,27 +181,27 @@ def get_sorszam(tablename, idname):
         else:
             break
     return x
-def getlszam(value):
-    szamstr = ""
-    vanszam = False
-    for n in value:
-        if n.isdigit():
-            szamstr = szamstr + n
-            vanszam = True
-    if vanszam:
-        lszam = int(szamstr)
-    else:
-        lszam = 0
-    return lszam
-def setthlszam(record):
-    leltari_temp = record["book"]["=852"]["$h"]
-    szam = leltari_temp[leltari_temp.find("/")+1:]
-    return szam
+#def get_lkonyv_query(record):
+#    values =[]
+#    record_s = record["book"]
+#    print(record)
+#    for row in record_s :
+#            for field in record_s[row]:
+#                target_value=[]
+#                try:
+#                   target_table = linlib_struct[row][field]["table2"]
+#                    target_column = linlib_struct[row][field]["field2"]
+#                except:
+#
+#                    continue
+#               target_value.append(record_s[row][field])
+#                values.append({"table": target_table, "column":target_column,"value":target_value})    
+#    record_pld = record["book"]
+#    print(values)
 def save_rec(record_full) :
     # INSERT INTO konyv (id, fc, ac, szerzo, ar, isbn, nyelv, eto, szerad, kiadas, kiadjel, nyomda, ter, tmt, tszo, szakj, raktj)
     # VALUES (AI, record_s["=245"]["$a"]), record_s["=245"]["$b"], record_s["=245"]["$c"] ...
     # INSERT INTO lkonyv (id, doktipus, lszam, szerzo, cim, raktj, ar, pnem, lhely, statusz)
-    szakdolgozat = False
     record_s = record_full["book"]
     values = list()
     value = dict()
@@ -216,11 +209,6 @@ def save_rec(record_full) :
     pldcount = 0
     konyv_id = get_konyv_id()
     targyszo = ""
-    try:
-        if record_full["book"]["=852"]["$h"][0:3].upper() == "SZ/" or record_full["book"]["=852"]["$h"][0:4].upper() == "SZG/":
-            szakdolgozat = True
-    except:
-        pass
     for row in record_s :
             for field in record_s[row]:
                 target_value=[]
@@ -232,6 +220,7 @@ def save_rec(record_full) :
                 target_value.append(record_s[row][field])
                 values.append({"table": target_table, "column":target_column,"value":target_value})
     targyszo = settszo(record_full)
+    setlszam(record_full)
     values = setszerzo(values)
     values = setkszerzo(values)
     values = setkcim(values)
@@ -244,28 +233,14 @@ def save_rec(record_full) :
     values.append({"table": "konyv", "column":"tszo","value":[targyszo]})
     insertsql = dict()
     valuessql = dict()
-    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, kiadev, nyomda, ter, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem, kvid) VALUES ("
-    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@kiadev, &@nyomda, &@ter, &@tszo, &@szakj, &@raktj, '19991231', '19991231', &@doktipus, &@ar, 'Ft', 1"
+    insertsql["konyv"] = "INSERT INTO konyv (id, fc, ac, szerzo, isbn, nyelv, eto, szerad, kiadas, kiadjel, kiadev, nyomda, ter, tmt, tszo, szakj, raktj, rdatum, mdatum, doktipus, ar, pnem, kvid) VALUES ("
+    valuessql["konyv"] = "&@id, &@fc, &@ac, &@szerzo, &@isbn, &@nyelv, &@eto, &@szerad, &@kiadas, &@kiadjel, &@kiadev, &@nyomda, &@ter, &@tmt, &@tszo, &@szakj, &@raktj, '19991231', '19991231', &@doktipus, &@ar, 'Ft', 1"
     insertsql["kszerzo"] = "INSERT INTO kszerzo (sorszam, doktipus, id, szerzo ) VALUES ("    
     valuessql["kszerzo"] = "&@sorszam, &@doktipus, &@id, &@szerzo,"
     insertsql["kcim"] = "INSERT INTO kcim (sorszam, doktipus, id, cim ) VALUES ("    
     valuessql["kcim"] = "&@sorszam, &@doktipus, &@id, &@cim,"
-    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lbetu, lszam, rdatum, statusz, tulaj, vonalkod) VALUES ("    
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lbetu, &@lszam, &@rdatum"
-    vs = list()
-    if szakdolgozat:
-        names = setkonzulens(record_full)
-        x = get_sorszam("kszerzo","sorszam") + 1
-        for name in names:
-            query = valuessql["kszerzo"]
-            query = query.replace("&@sorszam", str(x))
-            query = query.replace("&@doktipus", "'Könyv'")
-            query = query.replace("&@id", str(konyv_id))
-            query = query.replace("&@szerzo", "'" + name + "'")
-            query = query.rstrip(",") + ")";
-            vs.append(query)
-            x = x +1
-        valuessql["konyv"] = valuessql["konyv"].replace("&@szakj", "' '")
+    insertsql["kpld"] = "INSERT INTO kpld (sorszam, id, lhely, lszam, rdatum, statusz, tulaj) VALUES ("    
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum"
     for item in values :
         repfrom = "&@" + item["column"]
         try:
@@ -274,7 +249,6 @@ def save_rec(record_full) :
             repto = str(item["value"]) 
         valuessql[item["table"]] = valuessql[item["table"]].replace(repfrom, repto)
     valuessql["konyv"] = valuessql["konyv"].replace("&@id", str(konyv_id))
-   
     valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@id", str(konyv_id))
     valuessql["kszerzo"] = valuessql["kszerzo"].replace("&@sorszam", str(get_sorszam("kszerzo", "sorszam")))
     valuessql["kcim"] = valuessql["kcim"].replace("&@id", str(konyv_id))
@@ -287,11 +261,9 @@ def save_rec(record_full) :
     queries = list()
     queries.append(insertsql["konyv"] + valuessql["konyv"])
     queries.append(insertsql["kszerzo"] + valuessql["kszerzo"])
-    for q in vs:
-        queries.append(insertsql["kszerzo"] + q)
     queries.append(insertsql["kcim"] + valuessql["kcim"])
     exemplars = list()
-    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lbetu, &@lszam, &@rdatum, &@statusz, 'EJF', &@vonalkod"
+    valuessql["kpld"] = "&@sorszam, &@id, &@lhely, &@lszam, &@rdatum, &@statusz, 'EJF'"
     i = 0
     count = 0
     book_columns = list()
@@ -331,15 +303,15 @@ def save_rec(record_full) :
             pldvalue["table"] = "kpld"
             pldvalue["field"] = pld
             pldvalue["value"] = book_values[ct1][ct2][0]
-            if pld == "vonalkod":
-                pldvalue["value"] = pldvalue["value"][:15]
             if pld == "lszam":
-                pldvalue["value"] = getlszam(book_values[ct1][ct2][0])
-                #pldvalue["value"] = str(int((book_values[ct1][ct2][0][2:])))
+                try:
+                    pldvalue["value"] = str(int((book_values[ct1][ct2][0][2:])))
+                except:
+                    pldvalue["value"] = "0"
             if pld == "statusz":
                     if pldvalue["value"] not in ("4 hét", "3 hét", "Selejtezve", "Tanév végéig" ):
                         if pldvalue["value"] == "nem kölcs." :
-                           pldvalue["value"] = "Nem kölcsönözhető"
+                           pldvalue["value"] = "n"
                         else:
                             pldvalue["value"] = "Selejtezve"
                     elif pldvalue["value"] == "Kölcsönözhető":
@@ -363,16 +335,8 @@ def save_rec(record_full) :
             except:
                 if j["column"] == "vonalkod" and (not vonalkod) :
                     repto = "00000000"
-                elif j["column"] == "lszam":
-                    repto = str(j["value"])
                 else:
                     repto = str(j["value"]) + "'"
-            if szakdolgozat:
-                lsz = setthlszam(record_full)
-                query1 = query1.replace("&@lszam", lsz)
-                query1 = query1.replace("&@lbetu", "'SZ'")
-            else:
-                query1 = query1.replace("&@lbetu", "''")
             query1 = query1.replace(repfrom,repto)
             ssz = get_sorszam("kpld", "sorszam") + ct
             query1 = query1.replace("&@sorszam", str(ssz))
@@ -385,7 +349,7 @@ def save_rec(record_full) :
     #query3 = get_lkonyv_query(record_full)
     for q in queries :
         print(q)
-        dbc.execute(q)
+       # dbc.execute(q)
     dbconn.commit()
   #  print(index)
     return
@@ -394,7 +358,7 @@ filestruct = open("linlib_struct.json")
 linlib_struct = json.load(filestruct)
 filestruct.close()
 try :
-    fhandle = open(file_to_process, "r", encoding = "latin2")
+    fhandle = open(file_to_process, "r", encoding = "windows-1250")
 except:
     print("Error by opening file")
     quit()
@@ -426,7 +390,16 @@ for line in fhandle :
         last_record = act_record
         act_record = []
         to_save = rec_sorted(last_record)
-        save_rec(to_save)
+        try:
+            outp = to_save["book"]["=852"]["$h"]
+        except:
+            outp = "Nincs szakjelzet"
+        if outp[0:3] == "Sz/" or outp[0:4] == "Szg/":
+            try:
+                print(to_save["book"]["=245"]["$a"])
+            except:
+                continue
+            save_rec(to_save)
 print(read_records)
 #print(last_record)
 #print(to_save)

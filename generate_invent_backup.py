@@ -20,7 +20,7 @@ for konyv_id in range(1, konyvdb+1):
     select1 = "SELECT doktipus, szerzo, fc, szakj, raktj, ar, pnem FROM konyv WHERE id = " + str(konyv_id) + ";"
     dbc.execute(select1)
     res1 = dbc.fetchone()
-    select2 = "SELECT lszam, lbetu FROM kpld WHERE id = " + str(konyv_id) + ";"
+    select2 = "SELECT lszam FROM kpld WHERE id = " + str(konyv_id) + ";"
     dbc.execute(select2)
     res2=dbc.fetchall()
     ins_val = ""
@@ -38,16 +38,9 @@ for konyv_id in range(1, konyvdb+1):
     for pldcount in range(len(res2)) :
         ins_val_secpart = ""
         for i in range(len(res2[pldcount])):
-            if str(res2[pldcount][i]) == '':
-                ins_val_secpart = ins_val_secpart + "\' \'" + ", "
-            else:
-                if i == 0:
-                    ins_val_secpart = ins_val_secpart + str(res2[pldcount][i]) + ", "
-                else:
-                    ins_val_secpart = ins_val_secpart + "\'" + str(res2[pldcount][i]) + "\', "
+            ins_val_secpart = ins_val_secpart + str(res2[pldcount][i]) + ", "
         ins_val_secpart = ins_val_secpart.rstrip(", ")
-        print(ins_val_secpart)
-        ins_full = "INSERT INTO lkonyv (doktipus, szerzo, cim, szakj, raktj, ar, pnem, lszam, lbetu, statusz) VALUES ("+ ins_val + ins_val_secpart + ", 1);"
+        ins_full = "INSERT INTO lkonyv (doktipus, szerzo, cim, szakj, raktj, ar, pnem, lszam, statusz) VALUES ("+ ins_val + ins_val_secpart + ", 1);"
         print(ins_full)
         dbc.execute(ins_full)
         dbconn.commit()
