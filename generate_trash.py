@@ -13,16 +13,19 @@ except :
     quit()
 dbc = dbconn.cursor()
 file_to_process = "./selejt/selejt1.txt"
-sqlfile = "./selejt/trashgen.sql"
+s1 = "2021/01"
+sqlfile = "./selejt/trashgen" + s1.replace("/", "_") + ".sql"
 try :
     fhandle = open(file_to_process, "r", encoding = "latin2")
 except:
     print("Error by opening file")
     quit()
 sqlhandle = open(sqlfile, "w")
-read_lines = 0;
-s1 = "2021/01"
-index = 1
+read_lines = 0
+query1 ="SELECT COUNT(*) FROM selejtj;"
+dbc.execute(query1)
+res = dbc.fetchone()
+index = int(res[0])
 sqlcommand = "INSERT INTO selejtj (sorszam, jegyzek, ar, lszam, szerzo, cim, szakj, raktj, pnem, lbetu, lhely, kotszam, db, torles, doktipus, kpld) VALUES ("
 for id in fhandle:
     id = id.rstrip()
@@ -41,7 +44,8 @@ for id in fhandle:
         values = values + str(res[3]) + ", "
         for i in range(4,len(res) - 1 ):
             if (res[i] != ""):
-                values = values + "'" + str(res[i]) + "', "
+                unescaped = res[i].replace("'", "\''")
+                values = values + "'" + unescaped + "', "
             else:
                 values = values + "' ', "
         if ((res[11] != "") and (res[11] is not None)):
@@ -51,6 +55,7 @@ for id in fhandle:
         values = values + "1, " + "'Elavulás', " + "'Könyv', " + str(res[0]) +");"
         list = sqlcommand + values 
         print(list)
+        sqlhandle.write(list + "\n")
         index = index + 1
 fhandle.close
 sqlhandle.close()
